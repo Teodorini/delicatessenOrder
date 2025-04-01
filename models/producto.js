@@ -8,6 +8,7 @@ const productoSchema = new mongoose.Schema({
   },
   descripcion: {
     type: String, // Tipo de dato: String (opcional)
+    required: true
   },
   precio: {
     type: Number, // Tipo de dato: Número
@@ -15,7 +16,16 @@ const productoSchema = new mongoose.Schema({
   },
   stock: {
     type: Number, // Tipo de dato: Número (cantidad disponible)
-    required: true // Campo obligatorio
+    required: true, // Campo obligatorio
+    min: 0// valor minimo requerido
+  },
+  imagen: {
+    type: String,
+    default: 'default.jpg'
+  },
+  categoria: {
+    type: String,
+    required: true
   }
 }, { timestamps: true }); // timestamps agrega automáticamente 'createdAt' y 'updatedAt'
 
