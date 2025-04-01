@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+//Definición de esquema de pedidos
 const pedidoSchema = new mongoose.Schema({
   usuario: {
     type: mongoose.Schema.Types.ObjectId,
@@ -7,25 +8,34 @@ const pedidoSchema = new mongoose.Schema({
     required: true
   },
   productos: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Producto', // Referencia al modelo Producto
-    required: true
+
+    producto:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Producto', // Referencia al modelo Producto
+      required: true
+    },
+    cantidad:{
+      type:Number,
+      required: true,
+      min:1
+    }
   }],
-  fechaPedido: {
-    type: Date,
-    default: Date.now
-  },
+  // fechaPedido: {
+  //   type: Date,
+  //   default: Date.now
+  // },
   total: {
     type: Number,
     required: true
   },
   estado: {
     type: String,
-    enum: ['pendiente', 'enviado', 'entregado'],
+    enum: ['Pendiente', 'Enviado', 'Entregado'],
     default: 'pendiente'
   }
 }, { timestamps: true });
 
+// Crear y exportar el modelo
 const Pedido = mongoose.model('Pedido', pedidoSchema);
 
 module.exports = Pedido;
