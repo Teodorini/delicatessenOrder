@@ -1,0 +1,24 @@
+#Ignorar node_modules (evita subir dependencias)
+
+node_modules/
+npm-debug.log
+package-lock.json
+
+# Ignorar configuraciones del entorno
+.env
+config/config.json
+
+# Ignorar archivos de prueba
+test/
+
+# Ignorar archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Ignorar logs
+logs/
+*.log
+
+# Ignorar caché de la base de datos
+dump.rdb
+*.sqlite
