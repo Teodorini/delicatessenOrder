@@ -6,7 +6,7 @@ exports.crearProducto = async(req, res) => {
     try {
         const {nombre, descripcion, precio, stock, imagen, categoria} = req.body;
         const nuevoProducto = new Producto({nombre, descripcion, precio, stock, imagen,categoria });
-        nuevoProducto.save();
+        await nuevoProducto.save();
         res.status(201).json({mensaje:'Producto creado correctamente'});
 
     } catch (error) {
@@ -28,10 +28,9 @@ exports.obtenerProductos = async(req,res)=> {
 exports.obtenerProductoPorId = async(req, res)=>{
     try {
         const producto = await Producto.findById(req.params.id);
-        if (!producto) {
-            return res.status(404).json({mensaje:'Producto NO encontrado'});
-            res.json(producto)
-        }
+        if (!producto) return res.status(404).json({ mensaje: 'Producto NO encontrado' });
+        res.json(producto);
+        
     } catch (error) {
         res.status(500).json({mensaje:'Error al obtener producto', error})
     };
@@ -53,7 +52,7 @@ exports.actualizarProducto = async(req, res)=>{
 
 //Eliminar un producto, solo administradores
 
-exports.eliminarProducto = async(req, req)=>{
+exports.eliminarProducto = async(req, res)=>{
     try {
         const productoEliminado = await Producto.findByIdAndDelete(req.params.id);
         if(!productoEliminado)return res.status(404).json({mensaje:'Producto NO encontrado'});

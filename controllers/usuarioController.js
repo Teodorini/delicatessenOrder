@@ -44,7 +44,8 @@ exports.registrarUsuario = async (req, res)=>{
 
             //Generar token
             const token = jwt.sign({id: usuario._id, esAdmin: usuario.esAdmin}, process.env.JWT_SECRET, { expiresIn: "1h"});
-            res.json({mensaje:'Inicio de Sesión exitos', token});
+            res.json({mensaje:'Inicio de sesión exitoso', token});
+
         } catch (error) {
             res.status(500).json({mensaje:'Ha ocurrido un error al iniciar sesión', error})
         };
