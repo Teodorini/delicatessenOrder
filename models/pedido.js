@@ -31,7 +31,7 @@ const pedidoSchema = new mongoose.Schema({
   estado: {
     type: String,
     enum: ['Pendiente', 'Enviado', 'Entregado'],
-    default: 'pendiente'
+    default: 'Pendiente'
   }
 }, { timestamps: true });
 
