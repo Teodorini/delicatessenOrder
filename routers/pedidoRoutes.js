@@ -1,12 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const pedidoController = require("../controllers/pedidoController");
+const { isAuthenticated } = require("../middlewares/auth");
+const { authorizeRole } = require("../middlewares/roles");
 
 // Rutas para pedidos
-router.post("/", pedidoController.crearPedido);
-router.get("/", pedidoController.obtenerPedidos);  // Solo admin
-router.get("/:id", pedidoController.obtenerPedidoPorId);
-router.put("/:id", pedidoController.actualizarPedido);  // Solo admin
-router.delete("/:id", pedidoController.eliminarPedido);  // Solo admin
+router.post("/",isAuthenticated, pedidoController.crearPedido);
+router.get("/",isAuthenticated, authorizeRole(),pedidoController.obtenerPedidos);  // Solo admin
+router.get("/:id", isAuthenticated, pedidoController.obtenerPedidoPorId);
+router.put("/:id", isAuthenticated, authorizeRole(), pedidoController.actualizarPedido);  // Solo admin
+router.delete("/:id", isAuthenticated, authorizeRole(), pedidoController.eliminarPedido);  // Solo admin
 
 module.exports = router;
