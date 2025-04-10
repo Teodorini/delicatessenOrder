@@ -15,7 +15,7 @@ exports.registrarUsuario = async (req, res) => {
         };
 
         // Hashear la contraseña
-        const hashedPassword = await bcrypt.hash(password, 10);
+        //const hashedPassword = await bcrypt.hash(password, 10);
 
         //Creación de Usuario
         const nuevoUsuario = new Usuario({ nombre, email, password, esAdmin });
