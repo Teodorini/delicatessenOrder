@@ -10,9 +10,10 @@ const pedidoRoutes = require('./pedidoRoutes');
 
 //Rutas principales
 
-router.use('/api/usuarios', usuarioRoutes);
-router.use('/api/productos', productoRoutes);
-router.use('/api/pedidos', pedidoRoutes);
+router.use('/usuarios', usuarioRoutes);
+router.use('/productos', productoRoutes);
+router.use('/pedidos', pedidoRoutes);
+
 
 //Ruta para verificar que el servidor está funcionando
 router.get('/', (req, res) => {

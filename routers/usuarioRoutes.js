@@ -7,6 +7,6 @@ const { authorizeRole } = require('../middlewares/roles');
 //Rutas para usuarios
 router.post('/registro', usuarioController.registrarUsuario);
 router.post('/login', usuarioController.loginUsuario);
-router.get('/', isAuthenticated, authorizeRole(), usuarioController.obtenerUsuario); //solo para administradores
+router.get('/', isAuthenticated, authorizeRole('admin'), usuarioController.obtenerUsuario); //solo para administradores
 
 module.exports = router;

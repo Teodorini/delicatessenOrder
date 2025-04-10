@@ -6,9 +6,9 @@ const { authorizeRole } = require("../middlewares/roles");
 
 // Rutas para pedidos
 router.post("/",isAuthenticated, pedidoController.crearPedido);
-router.get("/",isAuthenticated, authorizeRole(),pedidoController.obtenerPedidos);  // Solo admin
+router.get("/",isAuthenticated, authorizeRole('admin'),pedidoController.obtenerPedidos);  // Solo admin
 router.get("/:id", isAuthenticated, pedidoController.obtenerPedidoPorId);
-router.put("/:id", isAuthenticated, authorizeRole(), pedidoController.actualizarPedido);  // Solo admin
-router.delete("/:id", isAuthenticated, authorizeRole(), pedidoController.eliminarPedido);  // Solo admin
+router.put("/:id", isAuthenticated, authorizeRole('admin'), pedidoController.actualizarPedido);  // Solo admin
+router.delete("/:id", isAuthenticated, authorizeRole('admin'), pedidoController.eliminarPedido);  // Solo admin
 
 module.exports = router;
