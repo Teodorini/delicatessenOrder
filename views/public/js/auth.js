@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
           localStorage.setItem("nombre", data.nombre || "");
           alert("Inicio de sesión exitoso");
           loginForm.reset();
-          window.location.href = "/index.html";
+          window.location.href = "index.html";
   
         } catch (error) {
           console.error("Error al iniciar sesión", error);
