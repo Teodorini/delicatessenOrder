@@ -15,7 +15,7 @@ const usuarioSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  esAdmin: {// diferencia entre administyradores y usuarios
+  esAdmin: {// diferencia entre administradores y usuarios
     type: Boolean,
     default: false
   }
@@ -23,8 +23,14 @@ const usuarioSchema = new mongoose.Schema({
 
 //MiddLeware para hashear la contraseña antes de guardar el usuario
 usuarioSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next(); // Si la contraseña no fue modificada, no hace nada
-  this.password = await bcrypt.hash(this.password, 10); // Encriptamos la contraseña con bcrypt
+  if (!this.isModified('password')) return next();
+  
+  // Verificá si ya está hasheada (opcional)
+  const isHashed = this.password.startsWith('$2b$');
+  if (!isHashed) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+
   next();
 });
 
