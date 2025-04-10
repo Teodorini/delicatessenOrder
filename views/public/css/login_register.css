@@ -1,0 +1,51 @@
+/* login-register */
+
+
+body {
+    background: url('https://images.unsplash.com/photo-1598511724071-6b4431b839c5') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .form-container {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    margin: 80px auto;
+  }
+  
+  .navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #d9230f !important;
+  }
+  
+  .navbar {
+    background-color: #fff8f1 !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  .btn-primary {
+    background-color: #d9230f;
+    border-color: #d9230f;
+  }
+  
+  .btn-primary:hover {
+    background-color: #b61d0d;
+    border-color: #a91a0b;
+  }
+  
+  input:focus, button:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(217, 35, 15, 0.25);
+  }
+  
+  @media (max-width: 480px) {
+    .form-container {
+      margin: 30px 15px;
+      padding: 20px;
+    }
+  }
+  
