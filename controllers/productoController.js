@@ -7,7 +7,7 @@ exports.crearProducto = async(req, res) => {
         const {nombre, descripcion, precio, stock, imagen, categoria} = req.body;
         const nuevoProducto = new Producto({nombre, descripcion, precio, stock, imagen,categoria });
         await nuevoProducto.save();
-        res.status(201).json({mensaje:'Producto creado correctamente'});
+        res.status(201).json({mensaje:'Producto creado correctamente', producto: nuevoProducto});
 
     } catch (error) {
         res.status(500).json({ mensaje: " Ha ocurrido un error al crear producto", error });
