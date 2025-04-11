@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api'; // Asegúrate de que esto coincida con tu backend
+const API_URL = 'http://localhost:3000/api'; 
 
 // Solo usuarios logueados accedan a producto y pedido
 document.addEventListener("DOMContentLoaded", () => {
