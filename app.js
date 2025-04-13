@@ -1,29 +1,37 @@
+require('dotenv').config(); // CARGA LAS VARIABLES DE ENTORNO
+
 const express = require('express');
-const connectDB = require('./config/db');
-const cors = require('cors');
-const router = require('./routers');
+const connectDB = require('./config/db'); // CONEXIÓN A LA BASE DE DATOS
+const productoRoutes = require('./routers/productoRoutes');
+const usuarioRoutes = require('./routers/usuarioRoutes');
+const pedidoRoutes = require('./routers/pedidoRoutes');
+const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Middlewares
+// CONECTAR A MONGODB
+connectDB();
+
+// MIDDLEWARE PARA PARSEAR JSON
 app.use(express.json());
-app.use(cors());
 
-// Rutas
-app.use('/api', router);
+// RUTAS
+app.use('/productos', productoRoutes);
+app.use('/usuarios', usuarioRoutes);
+app.use('/pedidos', pedidoRoutes);
 
-// Iniciar servidor solo si conecta a la DB
-const startServer = async () => {
-  try {
-    await connectDB();
-    app.listen(PORT, () => {
-      console.log(`Servidor corriendo en el puerto ${PORT}`);
-    });
-  } catch (error) {
-    console.error('Error al conectar con la base de datos:', error);
-    process.exit(1);
-  }
-};
+// SERVIR ARCHIVOS ESTÁTICOS
+app.use(express.static(path.join(__dirname,'views/public')));
 
-startServer();
+// SERVIR INDEX.HTML COMO PÁGINA PRINCIPAL
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'public', 'index.html'));
+});
+
+// PUERTO DESDE .ENV O 3000 POR DEFECTO
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`SERVIDOR CORRIENDO EN http://localhost:${PORT}`);
+});
+
+

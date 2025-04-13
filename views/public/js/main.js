@@ -1,75 +1,104 @@
-const API_URL = 'http://localhost:3000/api'; 
+document.addEventListener("DOMContentLoaded", async () => {
+  const token = localStorage.getItem("token");
 
-// Solo usuarios logueados accedan a producto y pedido
-document.addEventListener("DOMContentLoaded", () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Debes iniciar sesión para ver esta página");
-      window.location.href = "login.html";
-    }
-  });
-  
+  if (!token) {
+    window.location.href = "/login.html";
+    return;
+  }
 
-// Cargar productos
-document.addEventListener('DOMContentLoaded', () => {
-  const productosContainer = document.getElementById('productos-lista');
-  if (productosContainer) cargarProductos(productosContainer);
-});
-
-// Función para obtener productos desde el backend
-async function cargarProductos(container) {
   try {
-    const res = await fetch(`${API_URL}/productos`);
+    const res = await fetch("/productos", {
+      headers: {
+        "x-auth-token": token
+      }
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error("Error al cargar productos:", errorData);
+      alert(errorData.msg || "No se pudieron obtener los productos");
+      throw new Error(errorData.msg ||"No se pudieron obtener los productos");
+    }
+
     const productos = await res.json();
+    const contenedor = document.getElementById("productos");
 
-    productos.forEach(prod => {
-      const col = document.createElement('div');
-      col.className = 'col';
+    if (!contenedor) {
+      console.warn("No se encontró un contenedor con id 'productos'");
+      return;
+    }
 
-      col.innerHTML = `
-        <div class="card h-100 shadow-sm">
-          <img src="${prod.imagen || './images/default.png'}" class="card-img-top" alt="${prod.nombre}">
-          <div class="card-body">
-            <h5 class="card-title">${prod.nombre}</h5>
-            <p class="card-text">${prod.descripcion}</p>
-            <p class="card-text fw-bold">$${prod.precio.toFixed(2)}</p>
-            <button class="btn btn-primary" onclick="realizarPedido('${prod._id}', '${prod.nombre}', ${prod.precio})">Hacer pedido</button>
-          </div>
+    productos.forEach((producto) => {
+      const card = document.createElement("div");
+      card.className = "card m-2";
+      card.style.width = "18rem";
+      card.innerHTML = `
+        <div class="card-body">
+          <h5 class="card-title">${producto.nombre}</h5>
+          <p class="card-text">${producto.descripcion}</p>
+          <p class="card-text">Precio: $${producto.precio}</p>
+          <button class="btn btn-primary agregar-producto" data-id="${producto._id}" data-precio="${producto.precio}">
+            Agregar al pedido
+          </button>
         </div>
       `;
-
-      container.appendChild(col);
-    });
-  } catch (error) {
-    console.error('Error al cargar productos:', error);
-    container.innerHTML = '<p class="text-danger">No se pudieron cargar los productos.</p>';
-  }
-}
-
-// Función para enviar un pedido
-async function realizarPedido(productoId, productoNombre, precio) {
-  const nombreCliente = prompt(`Ingrese su nombre para pedir "${productoNombre}":`);
-  if (!nombreCliente) return alert('Debes ingresar un nombre.');
-
-  const pedido = {
-    cliente: nombreCliente,
-    productoId,
-    estado: 'pendiente',
-    fecha: new Date(),
-    precio
-  };
-
-  try {
-    const res = await fetch(`${API_URL}/pedidos`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(pedido)
+      contenedor.appendChild(card);
     });
 
-    const data = await res.json();
-    alert(`¡Pedido realizado! ID: ${data._id}`);
-  } catch (error) {
-    console.error('Error al hacer el pedido:', error);
-    alert('Hubo un error al realizar el pedido.');
+    const carrito = [];
+    let total = 0;
+    const totalPedido = document.getElementById("total");
+
+    contenedor.addEventListener("click", (e) => {
+      if (e.target.classList.contains("agregar-producto")) {
+        const id = e.target.getAttribute("data-id");
+        const precio = parseFloat(e.target.getAttribute("data-precio"));
+        carrito.push(id);
+        total += precio;
+        if (totalPedido) {
+          totalPedido.textContent = `Total: $${total.toFixed(2)}`;
+        }
+      }
+    });
+
+    const btnHacerPedido = document.getElementById("hacer-pedido");
+    if (btnHacerPedido) {
+      btnHacerPedido.addEventListener("click", async () => {
+        if (carrito.length === 0) {
+          alert("Agregá productos al pedido");
+          return;
+        }
+
+        const res = await fetch("/pedidos", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-auth-token":token
+          },
+          body: JSON.stringify({
+            productos: carrito,
+            total: total
+          })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          alert("Pedido realizado con éxito");
+          window.location.reload();
+        } else {
+          alert(data.msg || "Error al realizar el pedido");
+        }
+      });
+    } else {
+      console.warn("No se encontró el botón con id 'hacer-pedido'");
+    }
+  } catch (err) {
+    console.error("Error al cargar productos:", err);
+    alert("Hubo un error al cargar los productos");
   }
-}
+});
+
+
+
+
