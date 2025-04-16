@@ -1,5 +1,4 @@
 
-
 const Pedido = require('../models/pedido');
 const Producto = require('../models/producto');
 
@@ -23,6 +22,13 @@ exports.crearPedido = async (req, res) => {
   }
 
   try {
+
+    // Validar que los productos existan
+    const productosEnBD = await Producto.find({ _id: { $in: productos } });
+    if (productosEnBD.length !== productos.length) {
+      return res.status(400).json({ msg: 'Uno o más productos no existen' });
+    };
+
     const pedido = new Pedido({
       usuario,
       productos,
