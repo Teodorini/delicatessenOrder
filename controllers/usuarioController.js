@@ -3,7 +3,6 @@
 const Usuario = require('../models/usuario'); // Importa el modelo de Usuario
 const bcrypt = require('bcryptjs'); // Necesario para comparar contraseñas en el login
 const jwt = require('jsonwebtoken');
-// const config = require('../config/config.json'); // Cargar configuraciones
 
 // Función para registrar un usuario
 exports.registrarUsuario = async (req, res) => {
@@ -34,11 +33,12 @@ exports.registrarUsuario = async (req, res) => {
     const payload = {
       usuario: {
         id: usuario.id,
+        rol: usuario.rol,
       },
     };
 
     // Enviar el token en la respuesta
-    jwt.sign(payload, config.jwtSecret, { expiresIn: '24h' }, (err, token) => {
+    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' }, (err, token) => {
       if (err) throw err;
       res.json({ token });
     });
@@ -71,10 +71,11 @@ exports.loginUsuario = async (req, res) => {
     const payload = {
       usuario: {
         id: usuario.id,
+        rol: usuario.rol
       },
     };
 
-    jwt.sign(payload, config.jwtSecret, { expiresIn: '24h' }, (err, token) => {
+    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' }, (err, token) => {
       if (err) throw err;
       res.json({ token });
     });
