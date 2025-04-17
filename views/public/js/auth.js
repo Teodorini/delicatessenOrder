@@ -1,10 +1,15 @@
 
 
 // Manejo de login
-document.getElementById("login-form")?.addEventListener("submit", async (e) => {
+document.getElementById("loginForm")?.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const email = document.getElementById("email-login").value;
-  const password = document.getElementById("password-login").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+//Validación de los campos 
+  if (!email || !password) {
+    return alert("Todos los campos son obligatorios");
+  };
 
   const res = await fetch("/api/usuarios/login", {
     method: "POST",
@@ -12,11 +17,18 @@ document.getElementById("login-form")?.addEventListener("submit", async (e) => {
     body: JSON.stringify({ email, password })
   });
 
+  //Validación de estado HTTP antes de parsear la respuesta
+  if (!res.ok) {
+    const errorText = await res.text(); // Leer el mensaje de error del servidor
+    throw new Error(errorText || "Error al iniciar sesión");
+  }; 
+
   const data = await res.json();
 
   if (res.ok) {
     localStorage.setItem("token", data.token);
     localStorage.setItem("nombre", data.nombre);
+    localStorage.setItem("rol", data.rol)
     window.location.href = "/views/public/index.html";
   } else {
     alert(data.msg || "Error al iniciar sesión");
@@ -24,13 +36,13 @@ document.getElementById("login-form")?.addEventListener("submit", async (e) => {
 });
 
 // Manejo de registro
-document.getElementById("register-form")?.addEventListener("submit", async (e) => {
+document.getElementById("registerForm")?.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const nombre = document.getElementById("nombre-register").value;
-  const email = document.getElementById("email-register").value;
-  const password = document.getElementById("password-register").value;
+  const nombre = document.getElementById("nombre").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-  const res = await fetch("/usuarios/registro", {
+  const res = await fetch("/api/auth/registro", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ nombre, email, password })
@@ -47,4 +59,3 @@ document.getElementById("register-form")?.addEventListener("submit", async (e) =
   }
 });
 
-  
