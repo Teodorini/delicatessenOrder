@@ -1,13 +1,18 @@
 document.addEventListener("DOMContentLoaded", async () => {
+  const userRole = localStorage.getItem('role');
+  if (userRole !== 'admin' && window.location.pathname.includes('admin.html')) {//agregue esto
+    window.location.href = '/index.html';
+  }
+  
   const token = localStorage.getItem("token");
 
-  if (!token) {
+  if (!token && !window.location.pathname.includes("login.html")) {
     window.location.href = "/login.html";
     return;
   }
 
   try {
-    const res = await fetch("/productos", {
+    const res = await fetch("/api/productos", {
       headers: {
         "x-auth-token": token
       }
@@ -69,7 +74,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           return;
         }
 
-        const res = await fetch("/pedidos", {
+        const res = await fetch("/api/pedidos", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
