@@ -4,6 +4,11 @@ const dotenv = require("dotenv");
 // Cargar variables de entorno desde .env
 dotenv.config();
 
+// Cargar los modelos
+require("./usuario");
+require("./producto");
+require("./pedido");
+
 // Configuración de la conexión a MongoDB
 const connectDB = async () => {
     try {

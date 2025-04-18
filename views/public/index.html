@@ -5,24 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Inicio - DELICATESSENORDER</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-light sticky-top">
     <div class="container">
-      <a class="navbar-brand" href="#"> DELICATESSENORDER</a>
+      <a class="navbar-brand" href="#">🥪 DELICATESSENORDER</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <!-- Cambié las rutas aquí, ya no usan './public/' -->
-          <li class="nav-item"><a class="nav-link" href="producto.html">Productos</a></li>
-          <li class="nav-item"><a class="nav-link" href="pedido.html">Pedidos</a></li>
-          <li class="nav-item"><a class="nav-link" href="login.html">Iniciar Sesión</a></li>
-          <li class="nav-item"><a class="nav-link" href="register.html">Registrarse</a></li>
+          <li class="nav-item"><a class="nav-link" href="/producto.html">Productos</a></li>
+          <li class="nav-item"><a class="nav-link" href="/pedido.html">Pedidos</a></li>
+          <li class="nav-item"><a class="nav-link" href="/login.html">Iniciar Sesión</a></li>
+          <li class="nav-item"><a class="nav-link" href="/register.html">Registrarse</a></li>
         </ul>
       </div>
     </div>
@@ -33,17 +32,17 @@
     <div>
       <h1>Bienvenidos a DELICATESSENORDER</h1>
       <p>Los mejores productos de fiambrería a tu alcance.</p>
-      <a href="producto.html" class="btn btn-primary">Ver Productos</a>
+      <a href="/producto.html" class="btn btn-primary">Ver Productos</a>
     </div>
   </header>
 
-    <!-- AGREGADO PARA MOSTRAR PRODUCTOS -->
-    <main class="container mt-5">
-      <div id="productos" class="row">
-        
-      </div>
-    </main>
-    <!-- FIN AGREGADO -->
+  <!-- Productos Section agregado-->
+  <section id="productos" class="container py-5">
+    <h2 class="text-center mb-4">Nuestros Productos</h2>
+    <div id="productos-lista" class="row">
+      <!-- Los productos se cargarán aquí dinámicamente -->
+    </div>
+  </section>
 
   <!-- Footer -->
   <footer class="text-center py-4">
@@ -51,8 +50,7 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- AGREGA EL SCRIPT PARA main.js -->
-  <script src="./js/main.js"></script>
+  <script src="/js/main.js"></script>
 </body>
 </html>
 

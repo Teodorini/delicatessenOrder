@@ -1,97 +1,71 @@
 
 const Producto = require('../models/producto');
 
-// Obtener todos los productos
-exports.obtenerProductos = async (req, res) => {
-  try {
-    const productos = await Producto.find();
+//Crear un nuevo producto ( solo administradores)
+
+exports.crearProducto = async(req, res) => {
+    try {
+        const {nombre, descripcion, precio, stock, imagen, categoria} = req.body;
+        const nuevoProducto = new Producto({
+            nombre, 
+            descripcion, 
+            precio, 
+            stock, 
+            imagen: imagen || 'default.jpg',
+            categoria });
+        await nuevoProducto.save();
+        res.status(201).json({mensaje:'Producto creado correctamente', producto: nuevoProducto});
+
+    } catch (error) {
+        res.status(500).json({ mensaje: " Ha ocurrido un error al crear producto", error });
+    };
+};
+
+//Obtener todos los productos
+exports.obtenerProductos = async(req,res)=> {
+    try {
+        const productos = await Producto.find();
+        res.json(productos);
+    } catch (error) {
+       res.status(500).json({mensaje:'Ocurrió un error al intentar obtener todos los productos', error}) 
+    }
+};
+
+//Obtener un producto por ID
+exports.obtenerProductoPorId = async(req, res)=>{
+    try {
+        const producto = await Producto.findById(req.params.id);
+        if (!producto) return res.status(404).json({ mensaje: 'Producto NO encontrado' });
+        res.json(producto);
+        
+    } catch (error) {
+        res.status(500).json({mensaje:'Error al obtener producto', error})
+    };
+};
+
+//Actualizar un producto, solo para administradores
+
+exports.actualizarProducto = async(req, res)=>{
+   try {
+    const productoActualizado = await Producto.findByIdAndUpdate(req.params.id, req.body, { new: true });
+   if (!productoActualizado) return res.status(404).json({mensaje:'El producto No fue encontrado'});
+   res.json({mensaje:'El producto ha sido Actualizado'});
     
-    if (productos.length === 0) {
-      return res.status(404).json({ msg: 'No hay productos disponibles' }); 
-    }
-    
-    res.status(200).json(productos);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Hubo un error al obtener los productos' });
-  }
+   
+} catch (error) {
+    res.status(500).json({ mensaje: "Error al actualizar producto", error });
+   };
 };
 
-// Obtener un producto por ID
-exports.obtenerProductoPorId = async (req, res) => {
-  try {
-    const producto = await Producto.findById(req.params.id);
+//Eliminar un producto, solo administradores
 
-    if (!producto) {
-      return res.status(404).json({ msg: 'Producto no encontrado' });
-    }
-
-    res.json(producto);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Hubo un error al obtener el producto' });
-  }
-};
-
-// Crear un nuevo producto
-exports.crearProducto = async (req, res) => {
-  const { nombre, precio, stock, descripcion } = req.body;
-
-  if (!nombre || !precio || !stock) {
-    return res.status(400).json({ msg: 'Todos los campos son obligatorios' });
-  }
-
-  try {
-    const producto = new Producto({
-      nombre,
-      precio,
-      stock,
-      descripcion,
-    });
-
-    await producto.save();
-    res.status(201).json(producto);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Hubo un error al crear el producto' });
-  }
-};
-
-// Actualizar un producto existente
-exports.actualizarProducto = async (req, res) => {
-  const { nombre, precio, stock, descripcion } = req.body;
-
-  try {
-    const producto = await Producto.findByIdAndUpdate(
-      req.params.id,
-      { nombre, precio, stock, descripcion },
-      { new: true }
-    );
-
-    if (!producto) {
-      return res.status(404).json({ msg: 'Producto no encontrado' });
-    }
-
-    res.json(producto);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Hubo un error al actualizar el producto' });
-  }
-};
-
-// Eliminar un producto
-exports.eliminarProducto = async (req, res) => {
-  try {
-    const producto = await Producto.findByIdAndDelete(req.params.id);
-
-    if (!producto) {
-      return res.status(404).json({ msg: 'Producto no encontrado' });
-    }
-
-    res.json({ msg: 'Producto eliminado' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Hubo un error al eliminar el producto' });
-  }
+exports.eliminarProducto = async(req, res)=>{
+    try {
+        const productoEliminado = await Producto.findByIdAndDelete(req.params.id);
+        if(!productoEliminado)return res.status(404).json({mensaje:'Producto NO encontrado'});
+        res.json({mensaje:'Producto eliminado correctamente'})
+    } catch (error) {
+        res.status(500).json({ mensaje: "Ha ocurrido un error al eliminar producto", error });
+    };
 };
 

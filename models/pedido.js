@@ -1,5 +1,3 @@
-
-
 const mongoose = require('mongoose');
 
 const pedidoSchema = new mongoose.Schema({
@@ -9,9 +7,16 @@ const pedidoSchema = new mongoose.Schema({
     required: true
   },
   productos: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Producto',
-    required: true
+    producto: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Producto',
+      required: true
+    },
+    cantidad: {
+      type: Number,
+      required: true,
+      min: 1
+    }
   }],
   fechaPedido: {
     type: Date,
@@ -31,3 +36,4 @@ const pedidoSchema = new mongoose.Schema({
 const Pedido = mongoose.model('Pedido', pedidoSchema);
 
 module.exports = Pedido;
+

@@ -6,8 +6,17 @@ const productoRoutes = require('./routers/productoRoutes');
 const usuarioRoutes = require('./routers/usuarioRoutes');
 const pedidoRoutes = require('./routers/pedidoRoutes');
 const path = require('path');
+const cors = require('cors');
+const router = require('./routers');
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
+// HABILITAR CORS
+const corsOptions = {
+  origin: 'http://localhost:3000',
+};
+app.use(cors(corsOptions));
 
 // CONECTAR A MONGODB
 connectDB();
@@ -21,7 +30,9 @@ app.use('/usuarios', usuarioRoutes);
 app.use('/pedidos', pedidoRoutes);
 
 // SERVIR ARCHIVOS ESTÁTICOS
-app.use(express.static(path.join(__dirname,'views/public')));
+app.use(express.static(path.join(__dirname, 'views/public')));
+
+
 
 // SERVIR INDEX.HTML COMO PÁGINA PRINCIPAL
 app.get('/', (req, res) => {
@@ -29,9 +40,8 @@ app.get('/', (req, res) => {
 });
 
 // PUERTO DESDE .ENV O 3000 POR DEFECTO
-const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
   console.log(`SERVIDOR CORRIENDO EN http://localhost:${PORT}`);
 });
-
 

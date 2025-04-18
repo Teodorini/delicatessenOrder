@@ -3,90 +3,85 @@
 const Pedido = require('../models/pedido');
 const Producto = require('../models/producto');
 
-// Obtener todos los pedidos
-exports.obtenerPedidos = async (req, res) => {
-  try {
-    const pedidos = await Pedido.find().populate('usuario productos'); // Asegúrate de que los datos de usuario y productos se traigan también
-    res.json(pedidos);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Hubo un error al obtener los pedidos' });
-  }
-};
 
-// Crear un nuevo pedido
-exports.crearPedido = async (req, res) => {
-  const { usuario, productos, total } = req.body;
+//Crear un nuevo pedido
 
-  if (!usuario || !productos || !total) {
-    return res.status(400).json({ msg: 'Todos los campos son obligatorios' });
-  }
+exports.crearPedido = async(req, res)=>{
+    try {
+      const { usuario, productos, total, estado } = req.body;
+      console.log("Datos recibidos:", req.body);
 
-  try {
-    const pedido = new Pedido({
+          // agregado
+    const productosConCantidad = await Promise.all(productos.map(async (item) => {
+      const producto = await Producto.findById(item.producto);
+      if (!producto) {
+        throw new Error(`Producto con ID ${item.producto} no encontrado.`);
+      }
+      return {
+        producto: item.producto,
+        cantidad: item.cantidad
+      };
+    }));
+
+    const nuevoPedido = new Pedido({
       usuario,
-      productos,
+      productos: productosConCantidad,
       total,
+      estado
     });
-
-    await pedido.save();
-    res.status(201).json(pedido);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Hubo un error al crear el pedido' });
-  }
+        await nuevoPedido.save();
+      
+      res.status(201).json({ message: 'El pedido ha sido creado correctamente', nuevoPedido});;
+    } catch (error) {
+      console.error("Error al crear pedido:", error);
+      res.status(500).json({ mensaje: "Ha ocurrido un error al crear pedido", error: error.message });
+  };
 };
 
-// Obtener un solo pedido por ID
-exports.obtenerPedidoPorId = async (req, res) => {
-  try {
-    const pedido = await Pedido.findById(req.params.id).populate('usuario productos');
+  //Obtener todos los pedidos, solo para administradores
 
-    if (!pedido) {
-      return res.status(404).json({ msg: 'Pedido no encontrado' });
-    }
-
-    res.json(pedido);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Hubo un error al obtener el pedido' });
-  }
+  exports.obtenerPedidos = async (req, res)=>{
+    try {
+        const pedidos = await Pedido.find().populate("usuario", "nombre email").populate("productos.producto", "nombre precio");
+        res.json(pedidos)
+    } catch (error) {
+        res.status(500).json({mensaje:'Ocurrió un error al intentar obtener pedidos', error})
+    };
 };
 
-// Actualizar un pedido
+
+//Obtener un pedido por ID
+
+exports.obtenerPedidoPorId = async(req,res)=>{
+    try {
+        const pedido = await Pedido.findById(req.params.id).populate("usuario", "nombre email").populate("productos.producto", "nombre precio");
+        if (!pedido) return res.status(404).json({ mensaje: "Pedido no encontrado" });
+        res.json(pedido);
+    } catch (error) {
+        res.status(500).json({ mensaje: "Ocurrió un error al obtener pedido", error }); 
+    };
+};
+
+// Actualizar estado del pedido, solo administradores
+
 exports.actualizarPedido = async (req, res) => {
-  const { estado } = req.body;
-
-  try {
-    const pedido = await Pedido.findByIdAndUpdate(
-      req.params.id,
-      { estado },
-      { new: true }
-    );
-
-    if (!pedido) {
-      return res.status(404).json({ msg: 'Pedido no encontrado' });
+    try {
+      const pedidoActualizado = await Pedido.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      if (!pedidoActualizado) return res.status(404).json({ mensaje: "Pedido no encontrado" });
+      res.json({ mensaje: "Pedido actualizado", pedidoActualizado });
+    } catch (error) {
+      res.status(500).json({ mensaje: "Error al actualizar pedido", error });
+    };
+  };
+  
+  // Eliminar un pedido, solo administradores
+  
+  exports.eliminarPedido = async (req, res) => {
+    try {
+      const pedidoEliminado = await Pedido.findByIdAndDelete(req.params.id);
+      if (!pedidoEliminado) return res.status(404).json({ mensaje: "Pedido no encontrado" });
+      res.json({ mensaje: "Pedido eliminado" });
+    } catch (error) {
+      res.status(500).json({ mensaje: "Error al eliminar pedido", error });
     }
-
-    res.json(pedido);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Hubo un error al actualizar el pedido' });
-  }
-};
-
-// Eliminar un pedido
-exports.eliminarPedido = async (req, res) => {
-  try {
-    const pedido = await Pedido.findByIdAndDelete(req.params.id);
-
-    if (!pedido) {
-      return res.status(404).json({ msg: 'Pedido no encontrado' });
-    }
-
-    res.json({ msg: 'Pedido eliminado' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Hubo un error al eliminar el pedido' });
-  }
-};
+  };
