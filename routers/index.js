@@ -7,8 +7,8 @@ const usuarioRoutes = require('./usuarioRoutes');
 const pedidoRoutes = require('./pedidoRoutes');
 
 // Montar las rutas sin el prefijo /api
+router.use('/auth', usuarioRoutes);
 router.use('/productos', productoRoutes);
-router.use('/usuarios', usuarioRoutes);
 router.use('/pedidos', pedidoRoutes);
 
 // Ruta para verificar que el servidor está funcionando
