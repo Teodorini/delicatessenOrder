@@ -21,7 +21,7 @@ const isAuthenticated = (req, res, next) => {
     // Agrega la información del usuario al request
     req.usuario = decoded;
     next();
-  } catch (err) {
+  } catch (error) {
     res.status(401).json({ msg: 'Token no válido', error });
   }
 };

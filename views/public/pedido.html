@@ -12,27 +12,59 @@
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-light sticky-top">
     <div class="container">
-      <a class="navbar-brand" href="../index.html">🥪 DELICATESSENORDER</a>
+      <a class="navbar-brand" href="./index.html">🥪 DELICATESSENORDER</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="../index.html">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link" href="../pedido.html">Pedidos</a></li>
-          <li class="nav-item"><a class="nav-link" href="../login.html">Cerrar sesión</a></li>
+          <li class="nav-item"><a class="nav-link" href="./index.html">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" href="./producto.html">Productos</a></li>
+          <li class="nav-item"><a class="nav-link" href="./login.html" id="logoutBtn">Cerrar sesión</a></li>
         </ul>
       </div>
     </div>
   </nav>
 
-  <!-- Contenedor de productos -->
+  <!-- Contenedor de pedidos -->
   <div class="container mt-4">
-    <h2>Productos disponibles</h2>
-    <div id="productos" class="d-flex flex-wrap"></div>
-
-    <h3 id="total" class="mt-4">Total: $0.00</h3>
-    <button id="hacer-pedido" class="btn btn-success mt-2">Hacer Pedido</button>
+    <h2 class="mb-3">Mis Pedidos</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>Mis Pedidos</h2>
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalNuevoPedido">
+        Nuevo Pedido
+      </button>
+    </div>
+    <div id="pedidos-lista" class="row">
+      <!-- Aquí se cargarán los pedidos dinámicamente -->
+    </div>
+  </div>
+  <!-- Modal para crear nuevo pedido -->
+  <div class="modal fade" id="modalNuevoPedido" tabindex="-1" aria-labelledby="modalNuevoPedidoLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form id="formNuevoPedido">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalNuevoPedidoLabel">Nuevo Pedido</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="productoSelect" class="form-label">Producto</label>
+              <select id="productoSelect" class="form-select" required></select>
+            </div>
+            <div class="mb-3">
+              <label for="cantidadInput" class="form-label">Cantidad</label>
+              <input type="number" id="cantidadInput" class="form-control" value="1" min="1" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Crear Pedido</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 
   <!-- Scripts -->
@@ -41,4 +73,3 @@
 
 </body>
 </html>
-

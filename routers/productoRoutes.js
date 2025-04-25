@@ -11,8 +11,8 @@ router.get('/', productoController.obtenerProductos);
 
 // TODAS ESTAS REQUIEREN AUTENTICACIÓN Y ROL DE ADMIN
 router.post('/', isAuthenticated, authorizeRole('admin'), productoController.crearProducto);
-router.get('/', productoController.obtenerProductos);
-router.get('/:id', productoController.obtenerProductoPorId);
+router.get('/', productoController.obtenerProductos); // Pública
+router.get('/:id', productoController.obtenerProductoPorId); // Pública
 router.put('/:id', isAuthenticated, authorizeRole('admin'), productoController.actualizarProducto);
 router.delete('/:id', isAuthenticated, authorizeRole('admin'), productoController.eliminarProducto);
 

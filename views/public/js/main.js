@@ -1,99 +1,203 @@
-const API_URL = 'http://localhost:3000'; 
+const API_URL = 'http://localhost:3000';
 
-// Solo usuarios logueados accedan a producto y pedido
-document.addEventListener("DOMContentLoaded", () => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    alert("Debes iniciar sesión para ver esta página");
-    window.location.href = "login.html";
-  }
-});
-
-// Cargar productos
 document.addEventListener('DOMContentLoaded', () => {
-  const productosContainer = document.getElementById('productos-lista');  
-  if (productosContainer) cargarProductos(productosContainer);
+  const token = localStorage.getItem("token");
+  const usuarioId = localStorage.getItem("usuarioId");
+  const esAdmin = localStorage.getItem("esAdmin") === 'true';
+
+  if (!token) {
+    alert('Debes iniciar sesión para ver tus pedidos.');
+    return window.location.href = 'login.html';
+  }
+
+  cargarPedidos(token, usuarioId, esAdmin);
 });
 
-// Función para obtener productos desde el backend
-async function cargarProductos(container) {
+// Cargar pedidos desde el servidor
+async function cargarPedidos(token, usuarioId, esAdmin) {
+  const container = document.getElementById('pedidos-lista');
+
+  // Spinner de carga
+  container.innerHTML = `
+    <div class="text-center my-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-2">Cargando pedidos...</p>
+    </div>
+  `;
+
   try {
-    const res = await fetch(`${API_URL}/productos`);
-    if (!res.ok) {
-      throw new Error('No se pudo obtener los productos');
+    const res = await fetch(`${API_URL}/pedidos`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    const pedidos = await res.json();
+    if (!res.ok) throw new Error(pedidos.mensaje || 'Error al obtener pedidos');
+
+    const pedidosFiltrados = esAdmin
+      ? pedidos
+      : pedidos.filter(p => p.usuario?._id === usuarioId);
+
+    if (pedidosFiltrados.length === 0) {
+      container.innerHTML = `<p class="text-warning">No hay pedidos disponibles.</p>`;
+      return;
     }
-    const productos = await res.json();
 
-    productos.forEach(prod => {
-      const col = document.createElement('div');
-      col.className = 'col';
+    container.innerHTML = '';
 
-      col.innerHTML = `
-        <div class="card h-100 shadow-sm">
-         <img src="${prod.imagen || '/public/imagen/banner.jpg'}" class="card-img-top" alt="${prod.nombre}">
+    pedidosFiltrados.forEach(pedido => {
+      const productosHTML = pedido.productos.map(p =>
+        `<li>${p.producto?.nombre || 'Producto eliminado'} (Cantidad: ${p.cantidad})</li>`
+      ).join('');
 
+      const card = document.createElement('div');
+      card.className = 'col';
+
+      card.innerHTML = `
+        <div class="card shadow-sm mb-3">
           <div class="card-body">
-            <h5 class="card-title">${prod.nombre}</h5>
-            <p class="card-text">${prod.descripcion}</p>
-            <p class="card-text fw-bold">$${prod.precio.toFixed(2)}</p>
-            <button class="btn btn-primary" onclick="realizarPedido('${prod._id}', ${prod.precio})">Hacer pedido</button>
+            <h5 class="card-title">Pedido #${pedido._id.slice(-6)}</h5>
+            <p><strong>Cliente:</strong> ${pedido.usuario?.nombre || 'Desconocido'} (${pedido.usuario?.email || ''})</p>
+            <p><strong>Total:</strong> $${pedido.total}</p>
+            <p><strong>Estado:</strong> ${pedido.estado}</p>
+            <ul>${productosHTML}</ul>
+
+            ${esAdmin ? `
+              <div class="d-flex justify-content-between mt-3">
+                <button class="btn btn-sm btn-warning" onclick="actualizarEstado('${pedido._id}')">Actualizar Estado</button>
+                <button class="btn btn-sm btn-danger" onclick="eliminarPedido('${pedido._id}')">Eliminar</button>
+              </div>
+            ` : ''}
           </div>
         </div>
       `;
 
-      container.appendChild(col);
+      container.appendChild(card);
     });
+
   } catch (error) {
-    console.error('Error al cargar productos:', error);
-    container.innerHTML = '<p class="text-danger">No se pudieron cargar los productos.</p>';
+    console.error('Error al cargar pedidos:', error);
+    container.innerHTML = `<p class="text-danger">No se pudieron cargar los pedidos: ${error.message}</p>`;
   }
 }
 
-// Función para enviar un pedido
-async function realizarPedido(productoId, precio) {
+// Actualizar estado del pedido (solo admin)
+async function actualizarEstado(pedidoId) {
   const token = localStorage.getItem("token");
-  const usuarioId = localStorage.getItem("usuarioId");
- 
+  const nuevoEstado = prompt('Nuevo estado: pendiente, enviado o entregado')?.toLowerCase();
 
-  if (!token || !usuarioId) {
-    alert("Debes estar logueado para hacer un pedido.");
-    return;
+  const estadosValidos = ['pendiente', 'enviado', 'entregado'];
+  if (!estadosValidos.includes(nuevoEstado)) {
+    return alert('Estado inválido. Opciones: pendiente, enviado, entregado');
   }
 
   try {
-   
-
-    const pedido = {
-      usuario: usuarioId,
-      productos:  [{ producto: productoId, cantidad: 1 }],
-      total: precio,
-      estado: 'pendiente'
-    };
-
-    const respuesta = await fetch(`${API_URL}/pedidos`, {
-      method: 'POST',
-      headers: { 
+    const res = await fetch(`${API_URL}/pedidos/${pedidoId}`, {
+      method: 'PUT',
+      headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify(pedido)
+      body: JSON.stringify({ estado: nuevoEstado })
     });
 
-    const data = await respuesta.json();
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.mensaje || 'Error al actualizar');
 
-    if (respuesta.ok) {
-      alert(`¡Pedido realizado! ID: ${data._id}`);
-    } else {
-      alert(data.msg || "Error al hacer el pedido.");
-    }
+    alert('Pedido actualizado correctamente');
+    location.reload();
 
   } catch (error) {
-    console.error('Error al hacer el pedido:', error);
-    alert('Hubo un error al realizar el pedido.');
+    console.error('Error actualizando pedido:', error);
+    alert(`Error al actualizar: ${error.message}`);
   }
 }
 
+// Eliminar pedido (solo admin)
+async function eliminarPedido(pedidoId) {
+  const token = localStorage.getItem("token");
+  if (!confirm('¿Estás seguro de que deseas eliminar este pedido?')) return;
 
+  try {
+    const res = await fetch(`${API_URL}/pedidos/${pedidoId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
 
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.mensaje || 'Error al eliminar');
+
+    alert('Pedido eliminado exitosamente');
+    location.reload();
+
+  } catch (error) {
+    console.error('Error al eliminar pedido:', error);
+    alert(`Error al eliminar: ${error.message}`);
+  }
+}
+// Cargar productos en el select del modal
+document.addEventListener("DOMContentLoaded", async () => {
+  const select = document.getElementById("productoSelect");
+  if (!select) return;
+
+  try {
+    const res = await fetch(`${API_URL}/productos`);
+    const productos = await res.json();
+
+    productos.forEach(prod => {
+      const option = document.createElement("option");
+      option.value = prod._id;
+      option.textContent = `${prod.nombre} - $${prod.precio}`;
+      select.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Error cargando productos:", err);
+  }
+});
+
+// Enviar nuevo pedido
+document.getElementById("formNuevoPedido")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const token = localStorage.getItem("token");
+  const usuarioId = localStorage.getItem("usuarioId");
+
+  const productoId = document.getElementById("productoSelect").value;
+  const cantidad = parseInt(document.getElementById("cantidadInput").value);
+
+  try {
+    const res = await fetch(`${API_URL}/pedidos`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        usuario: usuarioId,
+        productos: [{ producto: productoId, cantidad }],
+        total: 0, // ⚠️ será recalculado en backend o podés enviar precio*cantidad
+        estado: 'pendiente'
+      })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("Pedido creado exitosamente");
+      location.reload();
+    } else {
+      alert(data.mensaje || "Error al crear pedido");
+    }
+  } catch (error) {
+    console.error("Error al crear pedido:", error);
+    alert("Error al enviar el pedido");
+  }
+});
+
+// Botón de logout si existe
+document.getElementById('logoutBtn')?.addEventListener('click', () => {
+  localStorage.clear();
+  window.location.href = 'login.html';
+});
 
 

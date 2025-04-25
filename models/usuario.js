@@ -25,12 +25,7 @@ const usuarioSchema = new mongoose.Schema({
 
 usuarioSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
-
-   // Verificá si ya está hasheada
-   const isHashed = this.password.startsWith('$2b$');
-   if (!isHashed) {
   this.password = await bcrypt.hash(this.password, 10);
-   }
   next();
 });
 

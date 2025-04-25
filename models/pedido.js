@@ -28,10 +28,11 @@ const pedidoSchema = new mongoose.Schema({
   },
   estado: {
     type: String,
+    default: 'pendiente',
     enum: ['pendiente', 'enviado', 'entregado'],
-    default: 'pendiente'
-  }
-}, { timestamps: true });
+  },
+},
+  { timestamps: true });
 
 const Pedido = mongoose.model('Pedido', pedidoSchema);
 
