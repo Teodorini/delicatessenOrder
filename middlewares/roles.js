@@ -1,4 +1,3 @@
-// Middleware para verificar el rol del usuario
 const authorizeRole = () => {
   return (req, res, next) => {
     if (!req.usuario || !req.usuario.esAdmin) {
@@ -10,6 +9,5 @@ const authorizeRole = () => {
 
 module.exports = { authorizeRole };
 
-  
 
 
