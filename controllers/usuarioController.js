@@ -1,78 +1,80 @@
 
 const Usuario = require('../models/usuario');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 
-//Registrar un usuario nuevo
-
+// Registrar un nuevo usuario
 exports.registrarUsuario = async (req, res) => {
-    try {
-        const { nombre, email, password, esAdmin } = req.body;
+  try {
+    const { nombre, email, password, esAdmin } = req.body;
 
-        console.log('Datos recibidos:', req.body);
+    console.log('Datos de registro recibidos:', req.body);
 
-        //Validación de email, si esta o no registrado
-        const usuarioExiste = await Usuario.findOne({ email });
-        if (usuarioExiste) {
-            return res.status(400).json({ mensaje: 'El email ingresado ya está en uso' });
-        };
+    // Verificar si el email ya está registrado
+    const usuarioExistente = await Usuario.findOne({ email });
+    if (usuarioExistente) {
+      return res.status(400).json({ mensaje: 'El email ingresado ya está en uso' });
+    }
 
-        // Hashear la contraseña
-        const hashedPassword = await bcrypt.hash(password, 10);
+    // Crear usuario (el hash lo hará el modelo automáticamente)
+    const nuevoUsuario = new Usuario({ nombre, email, password, esAdmin });
+    await nuevoUsuario.save();
 
-        //Creación de Usuario
-        const nuevoUsuario = new Usuario({ nombre, email, password: hashedPassword, esAdmin  });
-        await nuevoUsuario.save();
-
-        res.status(201).json({ mensaje: 'Usuario registrado con éxito' });
-    } catch (error) {
-        console.error('Error al registrar usuario:', error);
-        res.status(500).json({ mensaje: 'Ha ocurrido un error al registrar usuario', error })
-    };
+    res.status(201).json({ mensaje: 'Usuario registrado con éxito' });
+  } catch (error) {
+    console.error('Error al registrar usuario:', error);
+    res.status(500).json({ mensaje: 'Ha ocurrido un error al registrar usuario', error: error.message });
+  }
 };
 
-//Iniciar sesión
+// Iniciar sesión
 exports.loginUsuario = async (req, res) => {
+  const { email, password } = req.body;
 
-    const { email, password } = req.body;
-    
-    try {
-            
-        const usuario = await Usuario.findOne({ email });
-        if (!usuario) {
-            return res.status(400).json({ mensaje: 'El usuario solicitado no fue encontrado' })
-        };
+  try {
+    const usuario = await Usuario.findOne({ email });
+    if (!usuario) {
+      return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+    }
 
-        //Comparar contraseña
-        const esCorrecto = await usuario.compararPassword(password);
-        if (!esCorrecto) {
-            return res.status(400).json({ mensaje: 'Contraseña incorrecta' });
-        };
+    // Comparar contraseñas
+    const passwordValido = await usuario.compararPassword(password);
+    if (!passwordValido) {
+      return res.status(401).json({ mensaje: 'Contraseña incorrecta' });
+    }
 
-        //Generar token
-        const token = jwt.sign({
-            id: usuario._id,
-            nombre: usuario.nombre,
-            email: usuario.email, 
-            esAdmin: usuario.esAdmin
-        }, process.env.JWT_SECRET, { expiresIn: "24h" });
-        
-        res.json({ mensaje: 'Inicio de sesión exitoso', 
-            token,
-            usuarioId: usuario._id });
-        
-    } catch (error) {
-        res.status(500).json({ mensaje: 'Ha ocurrido un error al iniciar sesión', error })
-    };  
+    // Generar JWT
+    const token = jwt.sign(
+      {
+        id: usuario._id,
+        nombre: usuario.nombre,
+        email: usuario.email,
+        esAdmin: usuario.esAdmin
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      mensaje: 'Inicio de sesión exitoso',
+      token,
+      usuarioId: usuario._id,
+      nombre: usuario.nombre,
+      esAdmin: usuario.esAdmin
+    });
+
+  } catch (error) {
+    console.error('Error al iniciar sesión:', error);
+    res.status(500).json({ mensaje: 'Ha ocurrido un error al iniciar sesión', error: error.message });
+  }
 };
 
-//Obtener todos los usuiarios, esto es solo para administradores
-
-exports.obtenerUsuario = async (req, res) => {
-    try {
-        const usuarios = await Usuario.find().select('-password');
-        res.json(usuarios)
-    } catch (error) {
-        res.status(500).json({ mensaje: "Error al obtener usuarios", error });
-    };
+// Obtener todos los usuarios (solo para admins)
+exports.obtenerUsuarios = async (req, res) => {
+  try {
+    const usuarios = await Usuario.find().select('-password'); // No enviar contraseñas
+    res.json(usuarios);
+  } catch (error) {
+    console.error('Error al obtener usuarios:', error);
+    res.status(500).json({ mensaje: 'Error al obtener usuarios', error: error.message });
+  }
 };
