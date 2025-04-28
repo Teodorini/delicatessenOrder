@@ -1,12 +1,9 @@
-// Manejo de login
-
+// Login
 document.getElementById("loginForm")?.addEventListener("submit", async (e) => {
   e.preventDefault();
-  
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
 
-  console.log('Formulario de registro enviado:', { email, password });
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
 
   try {
     const res = await fetch("/usuarios/login", {
@@ -17,34 +14,29 @@ document.getElementById("loginForm")?.addEventListener("submit", async (e) => {
 
     const data = await res.json();
 
-    console.log('Respuesta del servidor en login:', data);
-
     if (res.ok) {
-      
       const mensajeLogin = document.getElementById("mensajeLogin");
-      mensajeLogin.className = "alert alert-success mt-3"; // estilo verde
+      mensajeLogin.className = "alert alert-success mt-3";
       mensajeLogin.textContent = "¡Inicio de sesión exitoso! Redirigiendo...";
-      
-      // Guardamos el token, el nombre y el _id del usuario en localStorage
+
       localStorage.setItem("token", data.token);
       localStorage.setItem("nombre", data.nombre);
-      localStorage.setItem("usuarioId", data.usuarioId); // Guardamos el _id del usuario
-      
-      // Espera 2 segundos antes de redirigir
-      setTimeout(() => {
-      window.location.href = "/index.html";
-    }, 2000);
+      localStorage.setItem("usuarioId", data.usuarioId);
+      localStorage.setItem("esAdmin", data.esAdmin);
 
+      setTimeout(() => {
+        window.location.href = "/index.html";
+      }, 2000);
     } else {
-      alert(data.msg || "Error al iniciar sesión");
+      alert(data.mensaje || "Error al iniciar sesión");
     }
   } catch (error) {
-    alert("Error en la conexión. Intenta nuevamente.");
+    alert("Error de conexión. Intenta nuevamente.");
     console.error("Error en el login:", error);
   }
 });
 
-// Manejo de registro
+// Registro
 document.getElementById("registerForm")?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -53,7 +45,6 @@ document.getElementById("registerForm")?.addEventListener("submit", async (e) =>
   const password = document.getElementById("password").value;
   const rolSeleccionado = document.getElementById("rol").value;
 
-  // Determinar si el usuario es admin
   const esAdmin = rolSeleccionado === "admin";
 
   try {
@@ -66,7 +57,7 @@ document.getElementById("registerForm")?.addEventListener("submit", async (e) =>
     const data = await res.json();
 
     if (res.ok) {
-      alert("Usuario registrado con éxito. Iniciá sesión ahora.");
+      alert("Usuario registrado con éxito. Ahora podés iniciar sesión.");
       window.location.href = "/login.html";
     } else {
       alert(data.mensaje || "Error al registrarse");
@@ -76,4 +67,3 @@ document.getElementById("registerForm")?.addEventListener("submit", async (e) =>
     console.error("Error en el registro:", error);
   }
 });
-
