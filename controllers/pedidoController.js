@@ -62,18 +62,30 @@ exports.crearPedido = async (req, res) => {
   }
 };
 
-// Obtener todos los pedidos (solo para administradores)
+
+// Obtener pedidos (admin = todos, usuario = sus propios)
 exports.obtenerPedidos = async (req, res) => {
   try {
-    const pedidos = await Pedido.find()
-      .populate("usuario", "nombre email")
-      .populate("productos.producto", "nombre precio");
+    let pedidos;
+
+    if (req.usuario.esAdmin) {
+      // Admin: ve todos los pedidos
+      pedidos = await Pedido.find()
+        .populate("usuario", "nombre email")
+        .populate("productos.producto", "nombre precio");
+    } else {
+      // Usuario normal: solo sus propios pedidos
+      pedidos = await Pedido.find({ usuario: req.usuario.id })
+        .populate("usuario", "nombre email")
+        .populate("productos.producto", "nombre precio");
+    }
 
     res.json(pedidos);
   } catch (error) {
     res.status(500).json({ mensaje: 'Ocurrió un error al obtener los pedidos', error });
   }
 };
+
 
 // Obtener pedido por ID
 exports.obtenerPedidoPorId = async (req, res) => {

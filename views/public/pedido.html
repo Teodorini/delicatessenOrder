@@ -27,21 +27,26 @@
   </nav>
 
   <!-- Contenedor de pedidos -->
-  <div class="container mt-4">
-    <h2 class="mb-3">Mis Pedidos</h2>
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>Mis Pedidos</h2>
+  <div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">Mis Pedidos</h2>
       <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalNuevoPedido">
-        Nuevo Pedido
+        + Nuevo Pedido
       </button>
     </div>
-    <div id="pedidos-lista" class="row">
-      <!-- Aquí se cargarán los pedidos dinámicamente -->
+
+    <!-- Aquí se cargarán los pedidos -->
+    <div id="pedidos-lista" class="row"></div>
+
+    <!-- Mensaje cuando no hay pedidos -->
+    <div id="mensaje-vacio" class="text-center text-muted my-4" style="display: none;">
+      <h5>No tenés pedidos todavía.</h5>
+      <p>¡Hacé tu primer pedido presionando el botón <strong>Nuevo Pedido</strong>!</p>
     </div>
   </div>
+
   <!-- Modal para crear nuevo pedido -->
-  <div class="modal fade" id="modalNuevoPedido" tabindex="-1" aria-labelledby="modalNuevoPedidoLabel"
-    aria-hidden="true">
+  <div class="modal fade" id="modalNuevoPedido" tabindex="-1" aria-labelledby="modalNuevoPedidoLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <form id="formNuevoPedido">
