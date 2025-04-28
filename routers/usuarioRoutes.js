@@ -4,12 +4,12 @@ const usuarioController = require('../controllers/usuarioController');
 const { isAuthenticated } = require('../middlewares/auth');
 const { authorizeRole } = require('../middlewares/roles');
 
-// RUTA PARA REGISTRAR USUARIO
-router.post('/registro', usuarioController.registrarUsuario); 
+// Rutas de autenticación
+router.post('/registro', usuarioController.registrarUsuario);
+router.post('/login', usuarioController.loginUsuario);
 
-// RUTA PARA LOGIN DE USUARIO
-router.post('/login', usuarioController.loginUsuario); 
-
-router.get('/', isAuthenticated, authorizeRole('admin'), usuarioController.obtenerUsuario);
+// Ruta protegida: solo admins pueden ver usuarios
+router.get('/', isAuthenticated, authorizeRole(), usuarioController.obtenerUsuarios);
 
 module.exports = router;
+
