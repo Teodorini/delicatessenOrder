@@ -12,10 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Cargar pedidos desde el servidor
-async function cargarPedidos(token) {
+async function cargarPedidos(token, usuarioId, esAdmin) {
   const container = document.getElementById('pedidos-lista');
 
-  // Spinner de carga
   container.innerHTML = `
     <div class="text-center my-4">
       <div class="spinner-border text-primary" role="status">
@@ -33,22 +32,22 @@ async function cargarPedidos(token) {
     const pedidos = await res.json();
     if (!res.ok) throw new Error(pedidos.mensaje || 'Error al obtener pedidos');
 
+    const pedidosFiltrados = esAdmin
+      ? pedidos
+      : pedidos.filter(p => p.usuario?._id === usuarioId);
+
+    container.innerHTML = ''; // limpio spinner
+
     if (pedidosFiltrados.length === 0) {
       container.innerHTML = `
         <div class="mensaje-vacio">
-          <i class="bi bi-clipboard-x"></i>
           ¡Aún no has hecho ningún pedido!
         </div>
       `;
       return;
     }
-    
 
-    container.innerHTML = '';
-
-    const esAdmin = localStorage.getItem("esAdmin") === 'true';
-
-    pedidos.forEach(pedido => {
+    pedidosFiltrados.forEach(pedido => {
       const productosHTML = pedido.productos.map(p =>
         `<li>${p.producto?.nombre || 'Producto eliminado'} (Cantidad: ${p.cantidad})</li>`
       ).join('');
@@ -80,7 +79,11 @@ async function cargarPedidos(token) {
 
   } catch (error) {
     console.error('Error al cargar pedidos:', error);
-    container.innerHTML = `<p class="text-danger">No se pudieron cargar los pedidos: ${error.message}</p>`;
+    container.innerHTML = `
+      <div class="text-center text-danger my-4">
+        <p>No se pudieron cargar los pedidos: ${error.message}</p>
+      </div>
+    `;
   }
 }
 
