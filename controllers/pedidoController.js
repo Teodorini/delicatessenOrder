@@ -1,6 +1,6 @@
 
 
-require('../models/pedido'); 
+const Pedido = require('../models/pedido'); 
 const Producto = require('../models/producto');
 const Usuario = require('../models/usuario');
 
