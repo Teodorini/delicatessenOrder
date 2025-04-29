@@ -35,7 +35,7 @@ body {
 .hero-section {
   height: 80vh;
   background: url('../imagen/banner.jpg') no-repeat center center/cover;
-  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
+  text-shadow: 1px 1px 5px rgba(0,0,0,0.6);
 }
 
 .hero-section h1 {
@@ -64,7 +64,7 @@ body {
 
 #productos-lista .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
 
 .card-img-top {
@@ -74,29 +74,6 @@ body {
 
 .card-title {
   color: #a0522d;
-}
-
-#pedidos-lista .card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-#pedidos-lista .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-.mensaje-vacio {
-  text-align: center;
-  color: #a0522d;
-  font-size: 1.5rem;
-  margin-top: 50px;
-  font-weight: bold;
-  opacity: 0.8;
-}
-
-.mensaje-vacio i {
-  font-size: 3rem;
-  margin-bottom: 10px;
-  display: block;
 }
 
 /* Footer */

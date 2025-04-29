@@ -1,6 +1,6 @@
 
 
-const Pedido = require('../models/pedido');
+require('../models/pedido'); 
 const Producto = require('../models/producto');
 const Usuario = require('../models/usuario');
 
@@ -14,14 +14,14 @@ exports.crearPedido = async (req, res) => {
       return res.status(400).json({ mensaje: "Faltan campos requeridos o productos inválidos" });
     }
 
-    // Verificar existencia del usuario
+    // Verificar que el usuario exista
     const usuarioExistente = await Usuario.findById(usuario);
     if (!usuarioExistente) {
       return res.status(400).json({ mensaje: "El usuario no existe" });
     }
 
-    // Cálculo del total del pedido
     let total = 0;
+
     const productosConCantidad = await Promise.all(
       productos.map(async (item) => {
         const producto = await Producto.findById(item.producto);
@@ -42,7 +42,6 @@ exports.crearPedido = async (req, res) => {
       return res.status(400).json({ mensaje: "Ningún producto válido en el pedido" });
     }
 
-    // Crear y guardar el pedido
     const nuevoPedido = new Pedido({
       usuario,
       productos: productosValidos,
@@ -63,21 +62,15 @@ exports.crearPedido = async (req, res) => {
   }
 };
 
-// Obtener todos los pedidos (admin = todos, usuario = sus propios)
+// Obtener todos los pedidos (solo para administradores)
 exports.obtenerPedidos = async (req, res) => {
   try {
-    const filtro = req.usuario.esAdmin
-      ? {} // sin filtro, trae todo
-      : { usuario: req.usuario.id }; // trae solo los pedidos del usuario autenticado
-
-    const pedidos = await Pedido.find(filtro)
+    const pedidos = await Pedido.find()
       .populate("usuario", "nombre email")
       .populate("productos.producto", "nombre precio");
 
     res.json(pedidos);
-
   } catch (error) {
-    console.error("Error al obtener pedidos:", error);
     res.status(500).json({ mensaje: 'Ocurrió un error al obtener los pedidos', error });
   }
 };
@@ -93,15 +86,8 @@ exports.obtenerPedidoPorId = async (req, res) => {
       return res.status(404).json({ mensaje: "Pedido no encontrado" });
     }
 
-    // Seguridad adicional: evitar que usuarios comunes vean pedidos ajenos
-    if (!req.usuario.esAdmin && pedido.usuario._id.toString() !== req.usuario.id) {
-      return res.status(403).json({ mensaje: "No tienes permiso para ver este pedido" });
-    }
-
     res.json(pedido);
-
   } catch (error) {
-    console.error("Error al obtener el pedido:", error);
     res.status(500).json({ mensaje: "Error al obtener el pedido", error });
   }
 };
@@ -119,9 +105,7 @@ exports.actualizarPedido = async (req, res) => {
       mensaje: "Pedido actualizado correctamente",
       pedido: pedidoActualizado
     });
-
   } catch (error) {
-    console.error("Error al actualizar pedido:", error);
     res.status(500).json({ mensaje: "Error al actualizar el pedido", error });
   }
 };
@@ -136,9 +120,7 @@ exports.eliminarPedido = async (req, res) => {
     }
 
     res.json({ mensaje: "Pedido eliminado correctamente" });
-
   } catch (error) {
-    console.error("Error al eliminar pedido:", error);
     res.status(500).json({ mensaje: "Error al eliminar el pedido", error });
   }
-};
+};           

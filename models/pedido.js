@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+mongoose = require('mongoose'); 
 
 const pedidoSchema = new mongoose.Schema({
   usuario: {
@@ -37,4 +37,5 @@ const pedidoSchema = new mongoose.Schema({
 const Pedido = mongoose.model('Pedido', pedidoSchema);
 
 module.exports = Pedido;
+
 

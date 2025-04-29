@@ -2,19 +2,22 @@ const API_URL = 'http://localhost:3000';
 
 document.addEventListener('DOMContentLoaded', () => {
   const token = localStorage.getItem("token");
+  const usuarioId = localStorage.getItem("usuarioId");
+  const esAdmin = localStorage.getItem("esAdmin") === 'true';
 
   if (!token) {
     alert('Debes iniciar sesión para ver tus pedidos.');
     return window.location.href = 'login.html';
   }
 
-  cargarPedidos(token);
+  cargarPedidos(token, usuarioId, esAdmin);
 });
 
 // Cargar pedidos desde el servidor
 async function cargarPedidos(token, usuarioId, esAdmin) {
   const container = document.getElementById('pedidos-lista');
 
+  // Spinner de carga
   container.innerHTML = `
     <div class="text-center my-4">
       <div class="spinner-border text-primary" role="status">
@@ -36,16 +39,12 @@ async function cargarPedidos(token, usuarioId, esAdmin) {
       ? pedidos
       : pedidos.filter(p => p.usuario?._id === usuarioId);
 
-    container.innerHTML = ''; // limpio spinner
-
     if (pedidosFiltrados.length === 0) {
-      container.innerHTML = `
-        <div class="mensaje-vacio">
-          ¡Aún no has hecho ningún pedido!
-        </div>
-      `;
+      container.innerHTML = `<p class="text-warning">No hay pedidos disponibles.</p>`;
       return;
     }
+
+    container.innerHTML = '';
 
     pedidosFiltrados.forEach(pedido => {
       const productosHTML = pedido.productos.map(p =>
@@ -79,11 +78,7 @@ async function cargarPedidos(token, usuarioId, esAdmin) {
 
   } catch (error) {
     console.error('Error al cargar pedidos:', error);
-    container.innerHTML = `
-      <div class="text-center text-danger my-4">
-        <p>No se pudieron cargar los pedidos: ${error.message}</p>
-      </div>
-    `;
+    container.innerHTML = `<p class="text-danger">No se pudieron cargar los pedidos: ${error.message}</p>`;
   }
 }
 
@@ -141,7 +136,6 @@ async function eliminarPedido(pedidoId) {
     alert(`Error al eliminar: ${error.message}`);
   }
 }
-
 // Cargar productos en el select del modal
 document.addEventListener("DOMContentLoaded", async () => {
   const select = document.getElementById("productoSelect");
@@ -181,7 +175,7 @@ document.getElementById("formNuevoPedido")?.addEventListener("submit", async (e)
       body: JSON.stringify({
         usuario: usuarioId,
         productos: [{ producto: productoId, cantidad }],
-        total: 0,
+        total: 0, // será recalculado en backend o podés enviar precio*cantidad
         estado: 'pendiente'
       })
     });
@@ -200,11 +194,10 @@ document.getElementById("formNuevoPedido")?.addEventListener("submit", async (e)
   }
 });
 
-// Botón de logout
+// Botón de logout si existe
 document.getElementById('logoutBtn')?.addEventListener('click', () => {
   localStorage.clear();
   window.location.href = 'login.html';
 });
-
 
 
