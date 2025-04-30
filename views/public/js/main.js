@@ -1,6 +1,6 @@
 const API_URL = 'http://localhost:3000';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const token = localStorage.getItem("token");
   const usuarioId = localStorage.getItem("usuarioId");
   const esAdmin = localStorage.getItem("esAdmin") === 'true';
