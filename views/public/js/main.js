@@ -1,17 +1,85 @@
 const API_URL = 'http://localhost:3000';
 
-document.addEventListener('DOMContentLoaded', async () => {
-  const token = localStorage.getItem("token");
-  const usuarioId = localStorage.getItem("usuarioId");
-  const esAdmin = localStorage.getItem("esAdmin") === 'true';
 
-  if (!token) {
-    alert('Debes iniciar sesión para ver tus pedidos.');
-    return window.location.href = 'login.html';
+document.addEventListener('DOMContentLoaded', () => {
+  const path = window.location.pathname;
+
+
+  // Cargar productos si estoy en producto.html
+  if (path.includes('producto.html')) {
+    cargarProductos();
   }
 
-  cargarPedidos(token, usuarioId, esAdmin);
+  // Cargar pedidos si estoy en pedido.html
+  if (path.includes('pedido.html')) {
+    const token = localStorage.getItem("token");
+    const usuarioId = localStorage.getItem("usuarioId");
+    const esAdmin = localStorage.getItem("esAdmin") === 'true';
+
+    if (!token) {
+      alert('Debes iniciar sesión para ver tus pedidos.');
+      return window.location.href = 'login.html';
+    }
+
+    cargarPedidos(token, usuarioId, esAdmin);
+    cargarProductosEnSelect()
+  }
 });
+
+//Cargar productos
+async function cargarProductos() {
+  const container = document.getElementById("productos-lista");
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="text-center my-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando productos...</span>
+      </div>
+      <p class="mt-2">Cargando productos...</p>
+    </div>
+  `;
+
+  try {
+    const res = await fetch(`${API_URL}/productos`);
+    const productos = await res.json();
+
+    if (!res.ok || !Array.isArray(productos)) {
+      throw new Error("No se pudieron obtener los productos");
+    }
+
+    if (productos.length === 0) {
+      container.innerHTML = `<p class="text-warning text-center">No hay productos disponibles.</p>`;
+      return;
+    }
+
+    container.innerHTML = '';
+
+    productos.forEach(producto => {
+      const card = document.createElement('div');
+      card.className = 'col';
+
+      card.innerHTML = `
+        <div class="card h-100 shadow-sm">
+          <img src="./imagen/${producto.imagen || 'default.jpg'}" class="card-img-top" alt="${producto.nombre}">
+          <div class="card-body">
+            <h5 class="card-title">${producto.nombre}</h5>
+            <p class="card-text">${producto.descripcion}</p>
+            <p class="card-text"><strong>Precio:</strong> $${producto.precio}</p>
+            <p class="card-text"><strong>Stock:</strong> ${producto.stock}</p>
+            <span class="badge bg-secondary">${producto.categoria}</span>
+          </div>
+        </div>
+      `;
+
+      container.appendChild(card);
+    });
+
+  } catch (error) {
+    console.error("Error al cargar productos:", error);
+    container.innerHTML = `<p class="text-danger">No se pudieron cargar los productos.</p>`;
+  }
+};
 
 // Cargar pedidos desde el servidor
 async function cargarPedidos(token, usuarioId, esAdmin) {
@@ -137,7 +205,7 @@ async function eliminarPedido(pedidoId) {
   }
 }
 // Cargar productos en el select del modal
-document.addEventListener("DOMContentLoaded", async () => {
+async function cargarProductosEnSelect() {
   const select = document.getElementById("productoSelect");
   if (!select) return;
 
@@ -154,7 +222,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch (err) {
     console.error("Error cargando productos:", err);
   }
-});
+}
 
 // Enviar nuevo pedido
 document.getElementById("formNuevoPedido")?.addEventListener("submit", async (e) => {
