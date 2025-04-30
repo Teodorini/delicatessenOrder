@@ -22,12 +22,9 @@ const productoSchema = new mongoose.Schema({
   },
   imagen: {
     type: String,
-    default: 'default.jpg'
+    default: 'banner.jpg'
   },
-  categoria: {
-    type: String,
-    required: true
-  }
+  
 }, { timestamps: true });
 
 const Producto = mongoose.model('Producto', productoSchema);

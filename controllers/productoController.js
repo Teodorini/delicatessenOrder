@@ -11,7 +11,7 @@ exports.crearProducto = async(req, res) => {
             descripcion, 
             precio, 
             stock, 
-            imagen: imagen || 'default.jpg',
+            imagen:'banner.jpg',
             categoria });
         await nuevoProducto.save();
         res.status(201).json({mensaje:'Producto creado correctamente', producto: nuevoProducto});

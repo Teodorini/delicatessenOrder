@@ -61,13 +61,13 @@ async function cargarProductos() {
 
       card.innerHTML = `
         <div class="card h-100 shadow-sm">
-          <img src="./imagen/${producto.imagen || 'default.jpg'}" class="card-img-top" alt="${producto.nombre}">
+          <img src="./imagen/${producto.imagen || 'banner.jpg'}" class="card-img-top" alt="${producto.nombre}">
           <div class="card-body">
             <h5 class="card-title">${producto.nombre}</h5>
             <p class="card-text">${producto.descripcion}</p>
             <p class="card-text"><strong>Precio:</strong> $${producto.precio}</p>
             <p class="card-text"><strong>Stock:</strong> ${producto.stock}</p>
-            <span class="badge bg-secondary">${producto.categoria}</span>
+            
           </div>
         </div>
       `;
